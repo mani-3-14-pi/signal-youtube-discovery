@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ee">
+  <meta name="description" content="A calmer way to find what is worth watching on YouTube. Search videos, discover live broadcasts, and explore channels.">
+  <title>Signal — YouTube discovery, tuned in</title>
+  <link rel="icon" href="/signal.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-frame">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Signal home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">signal<span class="brand-period">.</span></span>
+      </a>
+      <div class="topbar-caption"><span class="status-dot"></span> A clearer frequency for YouTube</div>
+      <a class="topbar-link" href="https://www.youtube.com" target="_blank" rel="noreferrer">YouTube <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> WATCH WHAT MATTERS</p>
+          <h1 id="hero-title">Find your<br><em>next signal.</em></h1>
+          <p class="hero-description">A considered window into the videos, creators and live moments worth your time.</p>
+        </div>
+        <div class="hero-note" aria-hidden="true"><span class="hero-note-ring">S</span><span>Curated by curiosity.<br>Powered by YouTube.</span></div>
+        <div class="hero-index" aria-hidden="true"><span>01</span><span class="index-rule"></span><span>DISCOVER</span></div>
+      </section>
+
+      <section class="discovery" aria-label="YouTube discovery">
+        <div class="search-row">
+          <form id="search-form" class="search-box" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+            <label class="sr-only" for="search-input">Search videos, creators, or topics</label>
+            <input id="search-input" type="search" maxlength="120" placeholder="Search videos, creators, or a feeling…" autocomplete="off">
+            <kbd>↵</kbd>
+            <button class="search-button" type="submit">Search <span aria-hidden="true">↗</span></button>
+          </form>
+        </div>
+
+        <div class="browse-bar">
+          <div class="mode-tabs" role="tablist" aria-label="Browse by broadcast status">
+            <button class="mode-tab is-active" role="tab" aria-selected="true" data-mode="videos"><span class="tab-glyph">◉</span> For you</button>
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="live"><span class="live-glyph"></span> Live now</button>
+            <button class="mode-tab" role="tab" aria-selected="false" data-mode="upcoming"><span class="upcoming-glyph">◷</span> Upcoming</button>
+          </div>
+          <div class="filters-group">
+            <div class="sort-control duration-control">
+              <label for="duration-select">Length</label>
+              <select id="duration-select" aria-label="Filter by video length">
+                <option value="any">Any</option>
+                <option value="short">Under 4 min</option>
+                <option value="medium">4–20 min</option>
+                <option value="long">Over 20 min</option>
+              </select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </div>
+            <div class="sort-control">
+              <label for="sort-select">Sort</label>
+              <select id="sort-select" aria-label="Sort results">
+                <option value="relevance">Relevance</option>
+                <option value="date">Newest</option>
+                <option value="viewCount">Most viewed</option>
+                <option value="rating">Top rated</option>
+              </select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="results-heading" class="results-heading" aria-live="polite">
+          <div><span class="section-kicker">THE FREQUENCY</span><h2 id="results-title">A little inspiration</h2></div>
+          <span id="result-count" class="result-count"></span>
+        </div>
+
+        <div id="notice" class="notice" hidden role="status"></div>
+        <div id="results" class="results-grid" aria-live="polite" aria-busy="false"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <span class="empty-mark">∿</span><h3>Nothing on this frequency. Yet.</h3><p>Try another search, or tune into a different section.</p>
+        </div>
+        <div class="load-row"><button id="load-more" class="load-more" hidden>Load more <span aria-hidden="true">↓</span></button></div>
+      </section>
+    </main>
+
+    <footer class="footer"><a class="footer-brand" href="/">signal<span>.</span></a><span>Independent discovery. Official YouTube playback.</span><span class="footer-right">MADE FOR THE CURIOUS <span>✳</span></span></footer>
+  </div>
+
+  <dialog id="detail-dialog" class="detail-dialog" aria-label="Video details">
+    <button id="close-dialog" class="dialog-close" aria-label="Close video details">×</button>
+    <div id="detail-content"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

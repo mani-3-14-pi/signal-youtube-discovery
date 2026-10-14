@@ -1,0 +1,13 @@
+{
+  "name": "signal-youtube-discovery",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local YouTube video and livestream discovery with an official YouTube Data API backend proxy.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "check": "node --check server.mjs && node --check public/app.js"
+  },
+  "engines": { "node": ">=20" }
+}

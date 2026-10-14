@@ -10,18 +10,20 @@ It uses the **official YouTube Data API v3** for discovery and metadata, and You
 
 ## Why Signal
 
-Most video search results are optimized for volume. Signal brings a calmer, more legible layer to the same public YouTube catalog: clear broadcast status, useful context, channel exploration, and playback in one responsive interface. Its visual direction is editorial rather than dashboard-like—warm paper tones, deep green, restrained live accents, generous typography, and quiet motion.
+Signal follows YouTube’s familiar shell in both light and dark themes: the wordmark and compact top bar, rounded search and voice controls, create/notification/account actions, responsive navigation rail, filter chips, and video-first result cards. The implementation keeps Signal’s independent API-backed discovery features and identifies itself as an independent project; it is not an official YouTube product.
 
 ## What you can do
 
-- **Search videos and creators.** Search titles, channels, and topics. Sort by relevance, newest, views, or rating. Filter regular videos by length.
+- **Search videos and creators.** Search titles, channels, and topics. Sort by relevance, newest, views, or rating. Filter regular videos by length. Voice search is available in browsers that support the Web Speech API; microphone permission is requested only after clicking the microphone button.
 - **Discover live broadcasts.** Browse current broadcasts broadly or narrow the list with an optional topic or channel phrase. Cards distinguish live content and show concurrent viewers when YouTube provides them.
 - **Find upcoming streams.** Browse scheduled broadcasts or narrow by topic. Scheduled start times are presented in the viewer’s local time zone when available.
 - **Explore a channel.** Open a channel from a result and switch between its uploads, current live broadcasts, and upcoming broadcasts. Each list supports pagination.
-- **Watch with context.** Open a video to see its description, available statistics, channel details, and an official privacy-enhanced YouTube player.
+- **Watch with context and ambient light.** Open a video to see its description, available statistics, channel details, and an official privacy-enhanced YouTube player. An optional, softly blurred glow derived from the video thumbnail follows the player, and its on/off preference is remembered locally.
+- **Browse comfortably.** Desktop uses a familiar navigation rail; tablet widths compact it to an icon rail, and phones move navigation to the bottom. The chips switch between all videos, live, upcoming, short-duration results, long videos, and newest results. The **Shorts** chip currently means YouTube Data API videos under four minutes; it is not a dedicated Shorts feed. Press `/` or `Ctrl/⌘ K` to jump to search.
+- **Set the mood.** Use the moon/sun control in the header to switch themes. The first visit follows the operating-system color preference; a manual choice is saved locally and persists across visits.
 - **Stay oriented.** Loading placeholders, empty results, input validation, provider errors, quota guidance, and pagination help keep the interface useful when data is delayed or unavailable.
 
-All video, channel, viewer-count, and schedule details are live API data. Some fields are omitted by YouTube for particular videos or streams, so the interface only shows values the API actually returns.
+All video, channel, viewer-count, and schedule details are live API data. Some fields are omitted by YouTube for particular videos or streams, so the interface only shows values the API actually returns. The app stores only the ambient-light, theme, and collapsed-navigation preferences in the browser; it does not keep search history or watch history.
 
 ## Architecture
 
@@ -41,11 +43,11 @@ flowchart LR
 - **Node.js 20+**, using its built-in HTTP server and `fetch`; no runtime dependencies or install step.
 - **Vanilla JavaScript and CSS** for a fast, responsive front end without a client framework or bundle pipeline.
 - **YouTube Data API v3** for search, video details, channel metadata, uploads, and live/upcoming broadcast discovery.
-- **Process-local cache** because the application has no user accounts, saved lists, or durable user data. YouTube remains the source of truth for public metadata, and cached entries can be safely rebuilt after a restart.
+- **Process-local cache** because the application has no user accounts, saved lists, or database. YouTube remains the source of truth for public metadata, and cached entries can be safely rebuilt after a restart. The API key stays server-side; the three small interface preferences use browser local storage.
 
 ### Request and quota strategy
 
-The server validates query lengths, modes, IDs, sorts, and duration filters before making provider calls. Search result IDs are enriched in one batched `videos.list` request rather than one request per card. Identical in-flight API calls share the same promise. A bounded least-recently-used TTL cache uses shorter lifetimes for current broadcasts and longer ones for stable video and channel details.
+The server validates query lengths, modes, IDs, sorts, and duration filters before making provider calls. Search result IDs are enriched in one batched `videos.list` request rather than one request per card. A single optional batched `channels.list` lookup adds creator avatars to result cards; if that cosmetic lookup fails, the video results still load. Identical in-flight API calls share the same promise. A bounded least-recently-used TTL cache uses shorter lifetimes for current broadcasts and longer ones for stable video and channel details.
 
 The server also applies a per-IP request limit, an upstream timeout, and clear error mapping for an invalid key, unavailable provider, network failure, or exhausted quota. Google's current quota documentation lists a default of **100 `search.list` calls per day** and **10,000 units per day combined for other endpoints**, with daily quotas resetting at midnight Pacific Time. These are project-level limits and Google can change them; check [the official quota page](https://developers.google.com/youtube/v3/determine_quota_cost) for the live rules. Search requests are the scarcest operation, so automatic live polling is intentionally avoided; use the explicit refresh control when you want fresh live results.
 

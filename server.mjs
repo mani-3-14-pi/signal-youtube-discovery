@@ -218,8 +218,23 @@ async function handleApi(req, res, url) {
         const byId = new Map((detail.items || []).map((item) => [item.id, normalizeVideo(item)]));
         enriched = ids.map((id) => byId.get(id)).filter(Boolean);
       }
+      const channelIds = [...new Set(enriched.map((video) => video.channelId).filter(Boolean))];
+      const channelAvatars = new Map();
+      if (channelIds.length) {
+        try {
+          const channelData = await youtube('channels', { part: 'snippet', id: channelIds.join(',') }, 300_000);
+          for (const channel of channelData.items || []) {
+            const thumbs = channel.snippet?.thumbnails || {};
+            const avatar = thumbs.high || thumbs.medium || thumbs.default;
+            if (avatar?.url) channelAvatars.set(channel.id, avatar.url);
+          }
+        } catch (error) {
+          console.warn(`[api] optional channel-avatar lookup failed: ${error.message}`);
+        }
+      }
+      const items = enriched.map((video) => ({ ...video, channelThumbnail: channelAvatars.get(video.channelId) || '' }));
       return sendJson(res, 200, {
-        items: enriched,
+        items,
         nextPageToken: data.nextPageToken || null,
         totalResults: data.pageInfo?.totalResults || 0,
         mode,
